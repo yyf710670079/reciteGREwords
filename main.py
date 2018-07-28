@@ -83,10 +83,10 @@ class App:
         var_text = '\n\n'.join(var_list)
         meaning_text = '\n\n'.join(meaning_list)
 
-        word_box = Label(newPage, text=var_text)
-        word_box.pack(side=LEFT, padx=35)
+        word_box = Label(newPage, text=var_text, justify=LEFT)
+        word_box.pack(side=LEFT, padx=25)
 
-        meaning_box = Label(newPage, text=meaning_text, width=90)
+        meaning_box = Label(newPage, text=meaning_text, width=91, justify=LEFT)
         meaning_box.pack(side=LEFT)
 
         def get_new_page():
@@ -152,14 +152,14 @@ class App:
         wordLabel = Label(reviewPage, text=rd_word, font=('宋体', 35))
         wordLabel.pack(padx=40, pady=20)
         meaning = '隐藏释义'
-        meaningLabel = Label(reviewPage, text=meaning, font=('宋体', 20))
+        meaningLabel = Label(reviewPage, text=meaning, font=('宋体', 17), justify=LEFT)
         meaningLabel.pack(padx=40, pady=20)
 
         review_records[rd_word] += 1
 
         def reduce_times():
             global rd_word
-            if review_records[rd_word] > 2:
+            if review_records[rd_word] >= 2:
                 review_records[rd_word] -= 1
 
         respondButton = Button(reviewPage, text='不太熟悉', command=reduce_times, font=('宋体', 20))
@@ -168,7 +168,7 @@ class App:
         def show_low_level():
             global rd_word
             rd_word = choice([theWord for theWord in review_records
-                              if review_records[theWord] == 1 or review_records[theWord] == 2])
+                              if review_records[theWord] == 1])
             wordLabel.config(text=rd_word)
             review_records[rd_word] += 1
             meaning = '隐藏释义'
@@ -177,7 +177,16 @@ class App:
         def show_medium_level():
             global rd_word
             rd_word = choice([theWord for theWord in review_records
-                              if 2 < review_records[theWord] < 5])
+                              if 2 <= review_records[theWord] < 4])
+            wordLabel.config(text=rd_word)
+            review_records[rd_word] += 1
+            meaning = '隐藏释义'
+            meaningLabel.config(text=meaning)
+
+        def show_medium_level2():
+            global rd_word
+            rd_word = choice([theWord for theWord in review_records
+                              if 4 <= review_records[theWord] < 6])
             wordLabel.config(text=rd_word)
             review_records[rd_word] += 1
             meaning = '隐藏释义'
@@ -186,7 +195,7 @@ class App:
         def show_high_level():
             global rd_word
             rd_word = choice([theWord for theWord in review_records
-                              if 4 < review_records[theWord]])
+                              if 4 <= review_records[theWord]])
             wordLabel.config(text=rd_word)
             review_records[rd_word] += 1
             meaning = '隐藏释义'
@@ -204,20 +213,40 @@ class App:
                 for row3 in record_data3:
                     writer3.writerow(row3)
 
+        def playSound():
+            global rd_word
+            file3 = r'word_sound/' + rd_word + '.mp3'
+            pygame.mixer.init()
+            try:
+                track1 = pygame.mixer.music.load(file3)
+                pygame.mixer.music.play()
+                time.sleep(1.5)
+                pygame.mixer.music.stop()
+            except BaseException as e:
+                time.sleep(1.5)
+                print('No sound of this word')
+
+
         explaination = Button(reviewPage, text='查看释义', font=('宋体', 20), command=showMeaning)
         explaination.pack(padx=80, pady=20)
 
-        low_level = Button(reviewPage, text='1-2', command=show_low_level)
+        low_level = Button(reviewPage, text='1', command=show_low_level)
         low_level.pack(padx=30, side=LEFT)
 
-        medium_level = Button(reviewPage, text='3-5', command=show_medium_level)
+        medium_level = Button(reviewPage, text='2-3', command=show_medium_level)
         medium_level.pack(padx=30, side=LEFT)
 
-        high_level = Button(reviewPage, text='>6', command=show_high_level)
+        medium_level2 = Button(reviewPage, text='4-5', command=show_medium_level2)
+        medium_level2.pack(padx=30, side=LEFT)
+
+        high_level = Button(reviewPage, text='>5', command=show_high_level)
         high_level.pack(padx=30, side=LEFT)
 
         saveButton = Button(reviewPage, text='保存记录', command=save_review_records)
         saveButton.pack(padx=30, side=LEFT)
+
+        soundButton = Button(reviewPage, text='sound', command=playSound)
+        soundButton.pack(padx=30, side=LEFT)
 
         quitButton = Button(reviewPage, text='退出', command=reviewPage.destroy)
         quitButton.pack(padx=30, side=LEFT)
